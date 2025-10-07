@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Letter From My Heart</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Removed Tone.js, using native Audio API for MP3 playback -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for the Heart Animation and special font */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fce4ec; /* Light pink background */
+        }
+
+        /* 1. Heart Shape */
+        .heart {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background-color: #e91e63; /* Deep pink for the heart */
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+            animation: beat 1.5s infinite ease-in-out alternate, float 6s infinite ease-in-out;
+            cursor: pointer;
+            transition: transform 0.2s ease-out;
+        }
+
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #e91e63;
+            border-radius: 50%;
+        }
+
+        .heart:before {
+            top: -25px;
+            left: 0;
+        }
+
+        .heart:after {
+            left: 25px;
+            top: 0;
+        }
+
+        /* 2. Beating/Pulsing Animation */
+        @keyframes beat {
+            0% {
+                transform: scale(1) rotate(-45deg);
+                box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+            }
+            50% {
+                transform: scale(1.15) rotate(-45deg);
+                box-shadow: 0 8px 20px rgba(233, 30, 99, 0.7);
+            }
+            100% {
+                transform: scale(1) rotate(-45deg);
+            }
+        }
+
+        /* 3. Floating/Drifting Animation */
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(-45deg);
+            }
+            25% {
+                transform: translate(5px, 10px) rotate(-45deg);
+            }
+            50% {
+                transform: translate(0, 5px) rotate(-45deg);
+            }
+            75% {
+                transform: translate(-5px, 10px) rotate(-45deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(-45deg);
+            }
+        }
+        
+        /* Message Styling */
+        .handwriting {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem; /* Larger font for the main message */
+            color: #4a5568;
+        }
+
+        /* Music Button Icon */
+        .music-btn {
+            background-color: #e91e63;
+            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.6);
+        }
+        .music-btn:hover {
+            background-color: #f06292;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="love-letter-container" class="max-w-md w-full mx-4 p-8 bg-white rounded-xl shadow-2xl transition-all duration-500 hover:shadow-pink-300/80">
+        
+        <!-- Opening Header -->
+        <h1 class="text-2xl font-bold text-center mb-4 text-pink-600 font-['Playfair_Display']">
+            Surat Cinta untuk Wanita Impianku, Lilis Setiyorini
+        </h1>
+        <p class="text-center text-gray-500 mb-8 subtitle transition-opacity duration-500">
+            Click the heart
+        </p>
+
+        <!-- Animated Heart Element -->
+        <div id="heart-trigger" class="flex justify-center mb-10">
+            <div class="heart"></div>
+        </div>
+
+        <p class="text-center text-gray-500 mb-8 subtitle transition-opacity duration-500">
+            Ada musik, dengarkan dengan headset yaa...
+        </p>
+
+        <!-- Hidden Message Container -->
+        <div id="message-container" class="hidden space-y-6 text-center">
+            
+            <p class="handwriting text-lg md:text-lg leading-relaxed text-gray-700 border-t border-b py-4 border-pink-200">
+                Hai Lily... 🥰
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Dengan segala kerendahan hati, melalui surat ini, aku ingin memberitahumu segenap perasaan tulusku untukmu. 💝
+            </p>
+            
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Aku memang bukanlah orang yang kamu kenal, kita tidak pernah saling bertemu di real life. Jadi aku tidak punya kapasitas untuk mengatakan bahwa aku menyukaimu.. kamu pasti akan meragukannya. 🥺
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Jadi aku akan menyampaikan sekali lagi apa yang pernah aku sampaikan di Bumble 2 tahun yang lalu... 🫰
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Lily, aku ingin mendaftar untuk menjadi kandidat calonmu, apa saja persyaratannya? 🤭
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Waktu tu kamu menjawab "Baru 2 hari kenal bang kwwkw, How do you know that I'm a good people?" 😭
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Jadi aku menjawab seperti ini...
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Hehe... kecepetan ya? Kamu pasti orang yg baik Lily, I just want believe it.
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Kalau kamu merasa ini terlalu cepat, anggap aja aku sedang apply to be your life-partner, jobdesknya adalah make you happy for a whole of my life, 
+                ada tahap-tahap selanjutnya yang harus aku lalui seperti seleksi berkas, seleksi wawancara, wawancara dengan pihak keluarga dll. Mungkin semuanya akan
+                membutuhkan waktu yang cukup lama sampai kamu benar-benar yakin untuk menerimaku. Tapi kalau di tengah jalan kamu merasa fisikku atau kepribadianku tidak sesuai dengan 
+                ekspektasimu, you are free to dismiss my application. 🥰
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Eh... tau nggak, aku pernah menangis setelah sholat tahajjud sambil memandangi fotomu di Instagram, karena menyadari betapa jauhnya kamu dari jangkauanku, dan apakah doaku akan terwujud. 🥲
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Aku menceritakan tentangmu ke ibuku, aku bilang kalau kamu adalah wanita impianku, cantik, pinter, Lulusan Teknik Biosystem IPB, pemenang Lomba Karya Tulis Ilmiah. Dan aku cerita bahwa kamu juga baik dan sopan, setiap kata-katamu positif, wanita idaman lah pokoknya. 🤭
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Aku memberikan surat cinta ini kepadamu sebagai berkas utamaku untuk mendaftar menjadi kandidatmu. Aku harap kamu suka dengan tampilannya.. hehe. 😁
+            </p>
+
+            <p class="handwriting text-base md:text-lg text-gray-600">
+                Kamu adalah wanita impianku, Lily... 💝
+            </p>
+            
+
+            <div class="pt-6">
+                <p class="handwriting text-xl text-pink-700 font-semibold">— Azzam</p>
+                <p class="text-sm text-gray-400 mt-1">October 7th, 2025</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Music Control -->
+    <button id="music-control-container" onclick="toggleMusic()" class="fixed bottom-6 right-6 p-3 rounded-full text-white transition duration-300 z-40 hidden music-btn">
+        <!-- Icon for Speaker (using inline SVG for simplicity) -->
+        <svg id="music-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+    </button>
+
+
+    <script>
+        // Music variables for native HTML5 Audio
+        let audio = null;
+        const MUSIC_FILE = 'love_song.mp3'; // *** RENAME YOUR MP3 FILE TO THIS ***
+        let isMusicPlaying = false;
+        
+        // Get elements
+        const heartTrigger = document.getElementById('heart-trigger');
+        const messageContainer = document.getElementById('message-container');
+        const statusMessage = document.getElementById('status-message');
+        const musicControl = document.getElementById('music-control-container');
+        const musicIcon = document.getElementById('music-icon');
+        const subtitleElements = document.querySelectorAll('.subtitle'); // Select all subtitle paragraphs
+        
+        // Use a state to prevent multiple clicks and track initialization
+        let isRevealed = false;
+        let isMusicInitialized = false;
+
+
+        /**
+         * Initializes the Audio object and starts playback of the MP3 file.
+         */
+        async function startMusic() {
+            if (!isMusicInitialized) {
+                audio = new Audio(MUSIC_FILE);
+                audio.loop = true; // Make it loop automatically
+                audio.volume = 0.6; // Set a reasonable volume
+                isMusicInitialized = true;
+            }
+
+            try {
+                // Play starts the audio, requiring a user gesture (the click)
+                await audio.play();
+                isMusicPlaying = true;
+            } catch (error) {
+                console.error("Autoplay prevented or file not found:", error);
+                // If playback fails, show a mute icon to indicate no sound
+                isMusicPlaying = false; 
+            }
+            updateMusicIcon();
+        }
+
+        /**
+         * Toggles the play/pause state of the music.
+         */
+        function toggleMusic() {
+            if (!audio) return;
+
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+            } else {
+                // Ensure the audio starts from where it was paused
+                audio.play();
+                isMusicPlaying = true;
+            }
+            updateMusicIcon();
+        }
+
+        /**
+         * Updates the music control icon based on the playback state.
+         */
+        function updateMusicIcon() {
+            if (isMusicPlaying) {
+                // Speaker with waves (Volume 2)
+                musicIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+            } else {
+                // Speaker with X (Mute)
+                musicIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+            }
+        }
+
+        /**
+         * Toggles the visibility of the secret message and shows a custom status modal.
+         */
+        heartTrigger.addEventListener('click', async () => {
+            if (!isRevealed) {
+                // 1. Reveal the message and start music (MP3)
+                messageContainer.classList.remove('hidden');
+                await startMusic();
+
+                // 2. Add a visual confirmation that the heart was clicked
+                heartTrigger.querySelector('.heart').style.animation = 'none';
+                heartTrigger.querySelector('.heart').style.transform = 'scale(0.8) rotate(-45deg)';
+                
+                // 3. Fade out and hide all subtitle messages smoothly
+                subtitleElements.forEach(subtitle => {
+                    // Start fade out
+                    subtitle.classList.add('opacity-0');
+                    
+                    // Wait for the opacity transition (500ms) to complete, then hide the element completely.
+                    setTimeout(() => {
+                        subtitle.classList.add('hidden'); 
+                    }, 500);
+                });
+
+                // 4. Show music control
+                musicControl.classList.remove('hidden');
+
+                // 5. Show the custom status message
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('flex');
+
+                isRevealed = true;
+            }
+        });
+
+        /**
+         * Closes the custom status modal.
+         */
+        function closeStatus() {
+            statusMessage.classList.add('hidden');
+            statusMessage.classList.remove('flex');
+        }
+
+    </script>
+</body>
+</html>
