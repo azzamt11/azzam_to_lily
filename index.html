@@ -6,6 +6,7 @@
     <title>A Letter From My Heart</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Removed Tone.js, using native Audio API for MP3 playback -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         /* Custom CSS for the Heart Animation and special font */
@@ -106,16 +107,16 @@
 
     <div id="love-letter-container" class="max-w-md w-full mx-4 p-8 bg-white rounded-xl shadow-2xl transition-all duration-500 hover:shadow-pink-300/80">
         
-        <!-- Opening Header - Added ID and transition for margin change -->
-        <h1 id="main-title" class="text-2xl font-bold text-center mb-4 text-pink-600 font-['Playfair_Display'] transition-all duration-500">
+        <!-- Opening Header -->
+        <h1 class="text-2xl font-bold text-center mb-4 text-pink-600 font-['Playfair_Display']">
             Surat Cinta untuk Wanita Impianku, Lilis Setiyorini
         </h1>
         <p class="text-center text-gray-500 mb-8 subtitle transition-opacity duration-500">
             Click the heart
         </p>
 
-        <!-- Animated Heart Element (Added transition-opacity duration-500) -->
-        <div id="heart-trigger" class="flex justify-center mb-10 transition-opacity duration-500">
+        <!-- Animated Heart Element -->
+        <div id="heart-trigger" class="flex justify-center mb-10">
             <div class="heart"></div>
         </div>
 
@@ -166,7 +167,7 @@
             </p>
 
             <p class="handwriting text-base md:text-lg text-gray-600">
-                Lily... Selama 2 tahun ini, aku memperbaiki diriku, aku memperbaiki ibadahku, aku memperbaiki karirku, aku benar-benar ingin memantaskan diriku untukmu. Dan sekarang aku sudah jadi versi terbaik dari diriku. Aku siap untuk mendaftar lagi.  🥰
+                Lily... Selama 2 tahun ini, aku memperbaiki diriku, aku memperbaiki ibadahku, aku memperbaiki karirku, aku benar-benar ingin memantaskan diriku untukmu. Dan sekarang aku sudah jadi versi terbaik dari diriku. Aku siap untuk mendaftar lagi.  🥰
             </p>
 
             <p class="handwriting text-base md:text-lg text-gray-600">
@@ -227,53 +228,7 @@
     </button>
 
 
-    <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-lite.js";
-
-        // --- WEBHOOK CONFIGURATION ---
-        // GANTI URL INI dengan URL Webhook unik Anda (misalnya dari Webhook.site)
-        const WEBHOOK_URL = 'YOUR_UNIQUE_WEBHOOK_URL_HERE';
-        // -----------------------------
-
-        // Global Firebase variables
-        let db, auth, app, userId = null;
-        let isAuthReady = false;
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-
-        if (firebaseConfig) {
-            setLogLevel('Debug');
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            // Set up Authentication Listener
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    isAuthReady = true;
-                    console.log("Firebase Auth Ready. User ID:", userId);
-                } else {
-                    console.log("Attempting sign in...");
-                    // Try to sign in using the provided token or anonymously
-                    if (typeof __initial_auth_token !== 'undefined') {
-                        signInWithCustomToken(auth, __initial_auth_token).catch(e => console.error("Custom token sign-in failed:", e));
-                    } else {
-                        signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed:", e));
-                    }
-                }
-            });
-        } else {
-            console.error("Firebase config is missing.");
-        }
-
-        // --- Existing App Logic ---
-
+    <script>
         // Music variables for native HTML5 Audio
         let audio = null;
         const MUSIC_FILE = 'love_song.mp3'; // *** RENAME YOUR MP3 FILE TO THIS ***
@@ -282,79 +237,14 @@
         // Get elements
         const heartTrigger = document.getElementById('heart-trigger');
         const messageContainer = document.getElementById('message-container');
+        const statusMessage = document.getElementById('status-message');
         const musicControl = document.getElementById('music-control-container');
         const musicIcon = document.getElementById('music-icon');
         const subtitleElements = document.querySelectorAll('.subtitle'); // Select all subtitle paragraphs
-        const mainTitle = document.getElementById('main-title'); // Get the main title element
         
         // Use a state to prevent multiple clicks and track initialization
         let isRevealed = false;
         let isMusicInitialized = false;
-
-        /**
-         * Records an event to Firestore indicating the letter was opened.
-         */
-        async function recordLetterOpenedEvent() {
-            if (!db || !isAuthReady || !userId) {
-                console.error("Database or authentication not ready. Skipping event recording.");
-                return;
-            }
-
-            // Store in a public collection so the sender can see it
-            const eventsCollectionPath = `/artifacts/${appId}/public/data/letter_events`;
-            const eventData = {
-                openedBy: userId, // The unique ID of the person who opened it
-                event: "Letter_Opened",
-                timestamp: serverTimestamp(),
-                readableDate: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'long' }),
-                message: `The love letter was opened by a user with ID: ${userId}`,
-            };
-
-            try {
-                await addDoc(collection(db, eventsCollectionPath), eventData);
-                console.log("Letter opened event recorded successfully to Firestore.");
-            } catch (e) {
-                console.error("Error recording event to Firestore:", e);
-            }
-        }
-
-        /**
-         * Sends a notification payload to a configured external Webhook URL.
-         */
-        async function sendWebhookNotification(eventData) {
-            if (WEBHOOK_URL === 'https://webhook.site/bbe61aca-1fee-43a0-93f6-ae53e4220c0b' || !WEBHOOK_URL) {
-                console.warn("Webhook URL is not configured. Skipping external notification.");
-                return;
-            }
-
-            const payload = {
-                // Formatting a simple message for easy viewing in webhook logs
-                text: `[ALERT] 💖 SURAT DIBUKA! 💖 \n\nDibuka oleh ID Pengguna: ${eventData.openedBy}\nWaktu: ${new Date().toLocaleString('en-US')}`,
-                
-                // You can add more detailed JSON if targeting specific platforms like Slack/Discord
-                details: eventData
-            };
-
-            try {
-                // Using fetch to send a simple POST request
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                // Note: Check response status, but ignore content for most webhooks
-                if (response.ok) {
-                    console.log("Webhook notification sent successfully.");
-                } else {
-                     console.error("Webhook failed to send or returned error status:", response.status);
-                }
-            } catch (e) {
-                console.error("Error sending webhook notification:", e);
-            }
-        }
 
 
         /**
@@ -374,6 +264,7 @@
                 isMusicPlaying = true;
             } catch (error) {
                 console.error("Autoplay prevented or file not found:", error);
+                // If playback fails, show a mute icon to indicate no sound
                 isMusicPlaying = false; 
             }
             updateMusicIcon();
@@ -389,6 +280,7 @@
                 audio.pause();
                 isMusicPlaying = false;
             } else {
+                // Ensure the audio starts from where it was paused
                 audio.play();
                 isMusicPlaying = true;
             }
@@ -409,58 +301,47 @@
         }
 
         /**
-         * Toggles the visibility of the secret message and records the event.
+         * Toggles the visibility of the secret message and shows a custom status modal.
          */
         heartTrigger.addEventListener('click', async () => {
             if (!isRevealed) {
-                isRevealed = true; // Set immediately to prevent double-click
-
                 // 1. Reveal the message and start music (MP3)
                 messageContainer.classList.remove('hidden');
                 await startMusic();
 
-                // 2. Start fade out for the heart container (it stays in the layout flow, but transparent)
-                heartTrigger.classList.add('opacity-0');
-                heartTrigger.style.pointerEvents = 'none'; // Disable further clicks
-
-                // 3. INCREASE MARGIN BELOW TITLE
-                // Change default mb-4 to a larger mb-12 to create separation
-                mainTitle.classList.remove('mb-4');
-                mainTitle.classList.add('mb-12'); 
-
-                // 4. Fade out all subtitle messages smoothly
+                // 2. Add a visual confirmation that the heart was clicked
+                heartTrigger.querySelector('.heart').style.animation = 'none';
+                heartTrigger.querySelector('.heart').style.transform = 'scale(0.8) rotate(-45deg)';
+                
+                // 3. Fade out and hide all subtitle messages smoothly
                 subtitleElements.forEach(subtitle => {
+                    // Start fade out
                     subtitle.classList.add('opacity-0');
                     
-                    // Wait for the opacity transition (500ms) to complete, then hide the subtitles completely.
+                    // Wait for the opacity transition (500ms) to complete, then hide the element completely.
                     setTimeout(() => {
                         subtitle.classList.add('hidden'); 
                     }, 500);
                 });
 
-                // 5. Show music control
+                // 4. Show music control
                 musicControl.classList.remove('hidden');
 
-                // 6. Record the event to Firestore (still good for logging)
-                await recordLetterOpenedEvent();
+                // 5. Show the custom status message
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('flex');
 
-                // 7. Send the Webhook notification (the new notification mechanism)
-                // We must wait for auth to be ready to get the user ID, so we poll for it briefly.
-                const checkAuthAndNotify = () => {
-                    if (isAuthReady && userId) {
-                        const eventData = { openedBy: userId, event: "Letter_Opened", appId: appId };
-                        sendWebhookNotification(eventData);
-                    } else if (!isAuthReady) {
-                        // Retry quickly if auth is still initializing
-                        setTimeout(checkAuthAndNotify, 100);
-                    } else {
-                        // Fallback if userId is somehow missing
-                        sendWebhookNotification({ openedBy: 'Unknown User', event: "Letter_Opened", appId: appId });
-                    }
-                };
-                checkAuthAndNotify();
+                isRevealed = true;
             }
         });
+
+        /**
+         * Closes the custom status modal.
+         */
+        function closeStatus() {
+            statusMessage.classList.add('hidden');
+            statusMessage.classList.remove('flex');
+        }
 
     </script>
 </body>
