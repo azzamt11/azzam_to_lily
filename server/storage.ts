@@ -1,38 +1,51 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  posts,
+  interactions,
+  type Post,
+  type Interaction,
+  type InsertInteraction,
+} from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Posts
+  getPosts(): Promise<Post[]>;
+  likePost(id: number): Promise<Post | undefined>;
+  createPost(post: { title: string; content: string; imageUrl?: string }): Promise<Post>;
+
+  // Interactions
+  createInteraction(interaction: InsertInteraction): Promise<Interaction>;
+  getInteractions(): Promise<Interaction[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getPosts(): Promise<Post[]> {
+    return await db.select().from(posts).orderBy(posts.createdAt);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async likePost(id: number): Promise<Post | undefined> {
+    const [updated] = await db
+      .update(posts)
+      .set({ likes: sql`${posts.likes} + 1` })
+      .where(eq(posts.id, id))
+      .returning();
+    return updated;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createPost(post: { title: string; content: string; imageUrl?: string }): Promise<Post> {
+    const [newPost] = await db.insert(posts).values(post).returning();
+    return newPost;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createInteraction(interaction: InsertInteraction): Promise<Interaction> {
+    const [newInteraction] = await db.insert(interactions).values(interaction).returning();
+    return newInteraction;
+  }
+
+  async getInteractions(): Promise<Interaction[]> {
+    return await db.select().from(interactions).orderBy(interactions.createdAt);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
